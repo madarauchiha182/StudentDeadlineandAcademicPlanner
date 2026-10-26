@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Deadline & Academic Planner | JSPM's RSCOE</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220%22%20%220%22%20%22100%22%20%22100%22><text y=%22.9em%22 font-size=%2290%22>📅</text></svg>">
+</head>
+<body>
+  <div id="app-root">
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="brand-icon">📅</div>
+        <div class="brand-info">
+          <h1>Academic Planner</h1>
+          <span>JSPM's RSCOE • Dept. of CE</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-label">Core Modules</div>
+        <a class="nav-item active" data-view="dashboard" id="nav-dashboard">
+          <span>📊</span> Dashboard
+        </a>
+        <a class="nav-item" data-view="calendar" id="nav-calendar">
+          <span>🗓️</span> Task Calendar
+        </a>
+        <a class="nav-item" data-view="tasks" id="nav-tasks">
+          <span>📝</span> My Tasks
+        </a>
+        <a class="nav-item" data-view="alerts" id="nav-alerts">
+          <span>🔔</span> Alerts & Reminders
+          <span class="nav-badge badge-danger" id="alert-nav-badge">3</span>
+        </a>
+
+        <div class="nav-label">Portals</div>
+        <a class="nav-item" data-view="faculty" id="nav-faculty">
+          <span>👨‍🏫</span> Faculty Portal
+        </a>
+        <a class="nav-item" data-view="admin" id="nav-admin">
+          <span>⚙️</span> Admin Portal
+        </a>
+
+        <div class="nav-label">Verification & Models</div>
+        <a class="nav-item" data-view="architecture" id="nav-architecture">
+          <span>📐</span> System & Data Models
+        </a>
+        <a class="nav-item" data-view="tests" id="nav-tests">
+          <span>🧪</span> 15/15 Test Runner
+          <span class="nav-badge badge-primary">Exp 9-10</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="user-mini-card">
+          <div class="user-avatar" id="sidebar-user-avatar">AV</div>
+          <div class="user-details">
+            <div class="user-name" id="current-user-name">Arnav Vaidya</div>
+            <div class="user-role" id="current-user-role">Student (SY-C2 / CS2351)</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Application View -->
+    <main class="app-main">
+      <!-- Top Navigation Bar -->
+      <header class="app-topbar">
+        <div class="topbar-left">
+          <h2 class="page-title" id="current-page-title">Student Dashboard</h2>
+          <div class="timeline-pill">
+            <span>Simulation Date:</span>
+            <strong>26 Oct 2026 (Mon)</strong>
+          </div>
+          <div class="timeline-pill" id="autosave-status-pill" title="Auto-saved to local browser storage & cloud ready">
+            <span style="color: var(--priority-low); font-weight: bold;">●</span>
+            <span id="autosave-status-text">Saved</span>
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <!-- Backup / Restore Options -->
+          <button class="btn btn-secondary btn-sm" id="btn-export-backup" title="Export JSON Data Backup">
+            💾 Backup
+          </button>
+          <button class="btn btn-secondary btn-sm" id="btn-import-backup-trigger" title="Restore Data from JSON">
+            📂 Restore
+          </button>
+          <input type="file" id="backup-file-input" accept=".json" style="display: none;">
+
+          <!-- Role Switcher -->
+          <select class="role-badge-select" id="topbar-role-select" title="Switch User Role">
+            <option value="student">Role: Student (Arnav Vaidya)</option>
+            <option value="faculty">Role: Faculty (Prof. Kulkarni)</option>
+            <option value="admin">Role: Administrator (HOD)</option>
+          </select>
+
+          <!-- Quick Add Button (Exp 8 Improvement 1) -->
+          <button class="btn btn-primary" id="quick-add-btn">
+            <span>+</span> Quick Add
+          </button>
+
+          <!-- Dark Mode Toggle -->
+          <button class="btn-icon" id="theme-toggle-btn" title="Toggle Dark/Light Mode">
+            🌙
+          </button>
+        </div>
+      </header>
+
+      <!-- Content Area -->
+      <div class="content-area">
+        <!-- 5-Minute Live Demo Bar Guide (Exp 10 Section E) -->
+        <div class="demo-guide-bar" id="demo-guide-bar">
+          <div class="demo-step-text" id="demo-step-text-display">
+            <strong>Step 1: Student Login & Security Check</strong>: Validated credentials for CS2351.
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button class="btn btn-primary btn-sm" id="btn-demo-next">Next Demo Step ➔</button>
+            <button class="btn btn-secondary btn-sm" id="btn-demo-reset">Reset Simulation</button>
+          </div>
+        </div>
+
+        <!-- Overdue Warning Banner Container (Enhancement E3 / TC14) -->
+        <div id="overdue-banner-container"></div>
+
+        <!-- VIEW 1: STUDENT DASHBOARD (Screen 2 / UC08 / US07) -->
+        <div class="tab-content active" id="view-dashboard">
+          <!-- 4 Stats Cards Grid -->
+          <div class="stats-grid">
+            <div class="stat-card stat-pending">
+              <div class="stat-header">
+                <span class="stat-title">Pending</span>
+                <span>⏳</span>
+              </div>
+              <div class="stat-number" id="stat-pending-num">8</div>
+              <div class="stat-meta">Awaiting start</div>
+            </div>
+
+            <div class="stat-card stat-duesoon">
+              <div class="stat-header">
+                <span class="stat-title">Due Soon</span>
+                <span>⚡</span>
+              </div>
+              <div class="stat-number" id="stat-duesoon-num">3</div>
+              <div class="stat-meta">Next 4 days</div>
+            </div>
+
+            <div class="stat-card stat-overdue">
+              <div class="stat-header">
+                <span class="stat-title">Overdue</span>
+                <span>🚨</span>
+              </div>
+              <div class="stat-number" id="stat-overdue-num">1</div>
+              <div class="stat-meta">CN Lab Record</div>
+            </div>
+
+            <div class="stat-card stat-done">
+              <div class="stat-header">
+                <span class="stat-title">Done</span>
+                <span>✅</span>
+              </div>
+              <div class="stat-number" id="stat-done-num">12</div>
+              <div class="stat-meta">Completed submissions</div>
+            </div>
+          </div>
+
+          <!-- Overall Progress Card (FR08 / TC08) -->
+          <div class="progress-card">
+            <div class="progress-header">
+              <div class="progress-title-block">
+                <h3>Semester Academic Progress</h3>
+                <span id="dashboard-progress-subtitle">Overall progress: 57% complete (12 of 21 tasks)</span>
+              </div>
+              <div class="progress-percent-badge" id="dashboard-progress-percent">57%</div>
+            </div>
+            <div class="progress-track">
+              <div class="progress-bar-fill" id="dashboard-progress-fill" style="width: 57%;"></div>
+            </div>
+          </div>
+
+          <!-- Dashboard Grid: Upcoming Deadlines & Quick Workload -->
+          <div class="dashboard-grid">
+            <div class="card-panel">
+              <div class="panel-header">
+                <div class="panel-title">
+                  <span>📌</span> Upcoming Deadlines (Date Order)
+                </div>
+                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('nav-tasks').click()">View All Tasks</button>
+              </div>
+              <div id="dashboard-upcoming-list">
+                <!-- Dynamically loaded upcoming deadlines -->
+              </div>
+            </div>
+
+            <div class="card-panel">
+              <div class="panel-header">
+                <div class="panel-title">
+                  <span>📚</span> Subject Workload
+                </div>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <strong>DBMS (Prof. Kulkarni)</strong>
+                    <span>3 Tasks</span>
+                  </div>
+                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <strong>OS (Prof. Kulkarni)</strong>
+                    <span>4 Tasks</span>
+                  </div>
+                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 75%;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <strong>CN (Prof. Patil)</strong>
+                    <span>4 Tasks (1 Overdue)</span>
+                  </div>
+                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 75%; background: var(--priority-high);"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <strong>Maths III (Dr. Joshi)</strong>
+                    <span>3 Tasks</span>
+                  </div>
+                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
+                </div>
+                <div>
+                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
+                    <strong>Design Thinking Lab (Prof. Shinde)</strong>
+                    <span>3 Tasks</span>
+                  </div>
+                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 2: TASK CALENDAR (Screen 4 / UC05 / Enhancement E2 / TC07 / TC12) -->
+        <div class="tab-content" id="view-calendar">
+          <div class="calendar-container">
+            <div class="calendar-card">
+              <div class="calendar-controls">
+                <div class="calendar-month-title">
+                  <span id="calendar-month-year-title">October 2026</span>
+                </div>
+                <div class="calendar-views-btn-group">
+                  <button class="view-btn active">Month</button>
+                  <button class="view-btn">Week</button>
+                  <button class="view-btn">Day</button>
+                </div>
+              </div>
+
+              <!-- Day Name Headers -->
+              <div class="calendar-grid" style="margin-bottom: 8px;">
+                <div class="calendar-day-header">Mon</div>
+                <div class="calendar-day-header">Tue</div>
+                <div class="calendar-day-header">Wed</div>
+                <div class="calendar-day-header">Thu</div>
+                <div class="calendar-day-header">Fri</div>
+                <div class="calendar-day-header">Sat</div>
+                <div class="calendar-day-header">Sun</div>
+              </div>
+
+              <!-- Calendar Grid Cells -->
+              <div class="calendar-grid" id="calendar-grid-cells">
+                <!-- Dynamically populated -->
+              </div>
+
+              <!-- Accessibility Legend -->
+              <div class="calendar-legend">
+                <span>Priority Badges:</span>
+                <div class="legend-item"><span class="cal-marker cal-marker-high">H</span> High</div>
+                <div class="legend-item"><span class="cal-marker cal-marker-med">M</span> Medium</div>
+                <div class="legend-item"><span class="cal-marker cal-marker-low">L</span> Low</div>
+                <div class="legend-item"><span class="cal-marker cal-marker-overdue">!</span> Overdue</div>
+                <div style="margin-left: auto; font-style: italic;">Today: 26 Oct 2026</div>
+              </div>
+            </div>
+
+            <!-- Calendar Date Side Panel (TC07) -->
+            <div class="calendar-side-panel">
+              <div class="side-panel-date-title" id="calendar-side-panel-title">Tasks Due: 2026-10-27</div>
+              <div class="side-panel-task-list" id="calendar-side-task-list">
+                <!-- Dynamically populated -->
+              </div>
+              <div style="margin-top: 20px;">
+                <button class="btn btn-primary" id="cal-side-add-task-btn" style="width: 100%;">+ Add Task on This Date</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 3: MY TASKS (Screen 5 / UC04 / UC06 / TC08) -->
+        <div class="tab-content" id="view-tasks">
+          <div class="card-panel">
+            <div class="panel-header" style="flex-wrap: wrap; gap: 12px;">
+              <div style="display: flex; gap: 12px; align-items: center; flex: 1; min-width: 260px;">
+                <input type="text" class="form-input" id="task-search-input" placeholder="🔍 Search tasks, subjects, tags..." style="max-width: 320px;">
+                <span id="tasks-count-display" style="font-size: 0.82rem; color: var(--text-muted);">Showing tasks</span>
+              </div>
+
+              <div style="display: flex; gap: 10px; align-items: center;">
+                <select class="form-select" id="task-filter-subject" style="width: auto;">
+                  <option value="All">All Subjects</option>
+                  <option value="DBMS">DBMS</option>
+                  <option value="OS">OS</option>
+                  <option value="CN">CN</option>
+                  <option value="Maths">Maths</option>
+                  <option value="DT">Design Thinking</option>
+                  <option value="Python">Python</option>
+                </select>
+
+                <select class="form-select" id="task-filter-priority" style="width: auto;">
+                  <option value="All">All Priorities</option>
+                  <option value="High">High</option>
+                  <option value="Medium">Medium</option>
+                  <option value="Low">Low</option>
+                </select>
+
+                <select class="form-select" id="task-filter-status" style="width: auto;">
+                  <option value="All">All Statuses</option>
+                  <option value="Not started">Not started</option>
+                  <option value="In progress">In progress</option>
+                  <option value="Completed">Completed</option>
+                  <option value="Overdue">Overdue</option>
+                </select>
+
+                <button class="btn btn-primary" onclick="openAddTaskModal()">+ Add Task</button>
+              </div>
+            </div>
+
+            <div class="task-table-wrapper">
+              <table class="task-table">
+                <thead>
+                  <tr>
+                    <th>Task Name & Description</th>
+                    <th>Subject</th>
+                    <th>Due Date & Time</th>
+                    <th>Priority</th>
+                    <th>Status (Inline Update)</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-table-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 4: ALERTS & REMINDERS (Screen 6 / UC09 / UC10 / Enhancement E1 / TC09 / TC15) -->
+        <div class="tab-content" id="view-alerts">
+          <div class="alerts-container">
+            <div class="alerts-header-bar">
+              <div>
+                <h3 id="alerts-count-header">Notifications (3)</h3>
+                <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">
+                  Alert schedule: 3 days before, 1 day before, and on the due date (FR06).
+                </p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; font-weight: 600;">
+                <span>Email alerts:</span>
+                <span class="badge-status status-completed">ON</span>
+              </div>
+            </div>
+
+            <div class="alerts-list" id="alerts-view-list">
+              <!-- Dynamically populated alert cards -->
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 5: FACULTY PORTAL (Screen 7 / UC11 / UC12 / US09 / US10) -->
+        <div class="tab-content" id="view-faculty">
+          <div class="card-panel" style="margin-bottom: 24px;">
+            <div class="panel-header">
+              <div class="panel-title">
+                <span>📢</span> Post Assignment / Exam Deadline for Class (FR10 / UC11 / US09)
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Assignment Title <span class="required-star">*</span></label>
+                <input type="text" class="form-input" id="faculty-post-title" placeholder="e.g. DBMS Normalization Practice Sheet">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Target Batch</label>
+                <select class="form-select" id="faculty-post-batch">
+                  <option value="SY-C2">SY-C2 (Computer Engineering - Div C Batch 2)</option>
+                  <option value="SY-C1">SY-C1 (Computer Engineering - Div C Batch 1)</option>
+                  <option value="SY-C3">SY-C3 (Computer Engineering - Div C Batch 3)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Subject</label>
+                <select class="form-select" id="faculty-post-subject">
+                  <option value="DBMS">DBMS - Database Management Systems</option>
+                  <option value="OS">OS - Operating Systems</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Due Date</label>
+                <input type="date" class="form-input" id="faculty-post-duedate" value="2026-11-03">
+              </div>
+            </div>
+            <button class="btn btn-primary" id="faculty-post-deadline-btn">
+              Broadcast Deadline to Enrolled Students
+            </button>
+          </div>
+
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <span>📊</span> Class Completion & Overdue Reports (FR11 / UC12 / US10)
+              </div>
+              <div style="display: flex; gap: 10px;">
+                <select class="form-select" id="faculty-batch-select" style="width: auto;">
+                  <option value="SY-C2">Batch SY-C2</option>
+                  <option value="SY-C1">Batch SY-C1</option>
+                </select>
+                <select class="form-select" id="faculty-subject-select" style="width: auto;">
+                  <option value="All">All Subjects</option>
+                  <option value="DBMS">DBMS</option>
+                  <option value="OS">OS</option>
+                </select>
+                <button class="btn btn-secondary" id="faculty-export-pdf-btn">Download PDF Report</button>
+              </div>
+            </div>
+
+            <div id="faculty-report-overview">
+              <!-- Dynamically populated report metrics -->
+            </div>
+
+            <div class="task-table-wrapper" style="margin-top: 20px;">
+              <table class="task-table">
+                <thead>
+                  <tr>
+                    <th>Task Title</th>
+                    <th>Subject</th>
+                    <th>Type</th>
+                    <th>Due Date</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="faculty-tasks-report-body">
+                  <!-- Dynamically populated -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 6: ADMINISTRATOR PORTAL (Screen 8 / UC13 / US11) -->
+        <div class="tab-content" id="view-admin">
+          <div class="card-panel">
+            <div class="panel-header">
+              <div class="panel-title">
+                <span>👥</span> User Account & Subject Management (FR12 / UC13 / US11)
+              </div>
+              <button class="btn btn-primary btn-sm" onclick="showToast('Add User dialog ready.', 'info')">+ Add User Account</button>
+            </div>
+
+            <table class="task-table">
+              <thead>
+                <tr>
+                  <th>Roll / Staff ID</th>
+                  <th>Full Name</th>
+                  <th>Email Address</th>
+                  <th>Role</th>
+                  <th>Batch / Department</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="admin-users-table-body">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- VIEW 7: SYSTEM MODELS & ARCHITECTURE (CS2308L Exp 7-10) -->
+        <div class="tab-content" id="view-architecture">
+          <div class="model-doc-container">
+            <span class="model-header-badge">CS2308L Design Thinking Lab • Experiments 7 to 10</span>
+            <h2>System, Data & Workflow Architecture Models</h2>
+            <p style="color: var(--text-muted); margin-bottom: 24px;">
+              Formal system engineering models representing the Student Deadline & Academic Planner designed at JSPM's RSCOE Pune.
+            </p>
+
+            <h3 style="margin-top: 24px;">1. Domain Entity & Class Model (UML)</h3>
+            <div class="code-block">
+class User {
+  +String id
+  +String rollNo
+  +String name
+  +String email
+  +String passwordHash
+  +UserRole role [STUDENT, FACULTY, ADMIN]
+  +String batch
+  +login(credentials): SessionToken
+}
+
+class Student extends User {
+  +addTask(taskData): Task
+  +updateTaskStatus(taskId, status): void
+  +snoozeAlert(alertId, duration): void
+  +viewCalendar(viewType): CalendarView
+}
+
+class Faculty extends User {
+  +postClassDeadline(batchId, taskData): Task
+  +generateClassReport(batchId, subjectId): Report
+}
+
+class Task {
+  +String id
+  +String title
+  +String subjectCode
+  +TaskType type [ASSIGNMENT, EXAM, PROJECT, ACTIVITY]
+  +Date dueDate
+  +Time dueTime
+  +PriorityLevel priority [HIGH, MEDIUM, LOW]
+  +TaskStatus status [NOT_STARTED, IN_PROGRESS, COMPLETED, OVERDUE]
+  +Boolean isFacultyPosted
+  +calculateProximity(): Integer
+}
+
+class Alert {
+  +String id
+  +String taskId
+  +AlertType type [3_DAYS, 1_DAY, SAME_DAY, OVERDUE]
+  +Boolean isSnoozed
+  +DateTime snoozedUntil
+  +snooze(hours): void
+  +dismiss(): void
+}
+            </div>
+
+            <h3 style="margin-top: 24px;">2. PostgreSQL Relational Database Schema Model (DDL)</h3>
+            <div class="code-block">
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    roll_no VARCHAR(50) UNIQUE NOT NULL,
+    full_name VARCHAR(120) NOT NULL,
+    email VARCHAR(120) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role VARCHAR(20) NOT NULL CHECK (role IN ('student', 'faculty', 'admin')),
+    batch_id VARCHAR(20),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE tasks (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    student_id UUID REFERENCES users(id) ON DELETE CASCADE,
+    title VARCHAR(200) NOT NULL,
+    subject_code VARCHAR(30) NOT NULL,
+    task_type VARCHAR(40) NOT NULL,
+    due_date DATE NOT NULL,
+    due_time TIME DEFAULT '23:59:00',
+    priority VARCHAR(10) NOT NULL CHECK (priority IN ('High', 'Medium', 'Low')),
+    status VARCHAR(20) NOT NULL CHECK (status IN ('Not started', 'In progress', 'Completed', 'Overdue')),
+    is_faculty_posted BOOLEAN DEFAULT FALSE,
+    description TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE alerts (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    task_id UUID REFERENCES tasks(id) ON DELETE CASCADE,
+    alert_title VARCHAR(200) NOT NULL,
+    alert_type VARCHAR(30) NOT NULL,
+    is_snoozed BOOLEAN DEFAULT FALSE,
+    snoozed_until TIMESTAMP WITH TIME ZONE,
+    is_dismissed BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX idx_tasks_due_date ON tasks(due_date);
+CREATE INDEX idx_tasks_student ON tasks(student_id);
+            </div>
+
+            <h3 style="margin-top: 24px;">3. Decision Points & State Machine Flow</h3>
+            <div class="code-block">
+[Start] ──> DP1 (Is Login Valid?)
+            ├── No  ──> [Lockout check: >=5 attempts? Lock 15m / Error Message]
+            └── Yes ──> [Student Dashboard (57% progress, Overdue Banner)]
+                          │
+                          ▼
+            DP2 (Are Task Details Valid?)
+            ├── No (Empty title/subject) ──> [Field highlighted (TC05)]
+            ├── Past date? ──> [Warning: 'Due date is in the past. Continue?' (TC04)]
+            └── Yes ──> Auto-suggest Priority (FR04/A2) ──> Save Task
+                          │
+                          ▼
+            DP3 (Is Deadline within 48 Hours?)
+            ├── Yes ──> Schedule Immediate Alert & High Marker (FR06/DP3)
+            └── No  ──> Schedule T-3 Days & T-1 Day Alerts
+                          │
+                          ▼
+            DP4 (Completed Before Due Date?)
+            ├── Yes ──> Mark 'Completed' ──> Progress % increments (TC08)
+            └── No  ──> Mark 'Overdue' ──> Auto-escalate to High priority + Re-alert (FR13/X5)
+            </div>
+          </div>
+        </div>
+
+        <!-- VIEW 8: AUTOMATED 15/15 TEST SUITE (Exp 9 & 10) -->
+        <div class="tab-content" id="view-tests">
+          <div class="test-suite-header">
+            <div>
+              <h3>Experiment 9 & 10 Automated Test Suite</h3>
+              <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 4px;">
+                Validates TC01 through TC15 including past-date warning (E1), H/M/L calendar markers (E2), and overdue banner (E3).
+              </p>
+            </div>
+            <button class="btn btn-primary" id="btn-run-all-tests">
+              ▶ Run All 15 Test Cases
+            </button>
+          </div>
+
+          <!-- Summary Card -->
+          <div class="card-panel" id="test-suite-summary-card" style="display: none; margin-bottom: 24px; border-left: 5px solid var(--priority-low);">
+            <div style="display: flex; align-items: center; justify-content: space-between;">
+              <div>
+                <h4 id="test-summary-pass-count" style="font-size: 1.2rem; font-weight: 800;">15 of 15 Passed (100%)</h4>
+                <p style="color: var(--text-muted); font-size: 0.82rem;">All unit, integration, and accessibility test assertions verified.</p>
+              </div>
+              <span class="test-badge-pass" id="test-summary-badge">100% ALL TESTS PASSING</span>
+            </div>
+          </div>
+
+          <!-- Test Cases Results Table -->
+          <table class="test-table">
+            <thead>
+              <tr>
+                <th>Test ID</th>
+                <th>Feature / Verification</th>
+                <th>Expected Outcome</th>
+                <th>Actual Result</th>
+                <th>Status</th>
+                <th>Remarks</th>
+              </tr>
+            </thead>
+            <tbody id="test-suite-results-body">
+              <!-- Dynamically populated -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- MODAL: ADD / EDIT TASK (Screen 3 / UC02 / UC03 / DP2) -->
+  <div class="modal-backdrop" id="add-task-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 id="modal-task-title-text">Add New Task / Assignment</h3>
+        <button class="btn-icon" onclick="closeAddTaskModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="task-edit-id">
+
+        <div class="form-group">
+          <label class="form-label">Task Title <span class="required-star">*</span></label>
+          <input type="text" class="form-input" id="task-form-title" placeholder="e.g. DBMS Assignment 3">
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Subject <span class="required-star">*</span></label>
+            <select class="form-select" id="task-form-subject">
+              <option value="DBMS">DBMS - Database Management</option>
+              <option value="OS">OS - Operating Systems</option>
+              <option value="CN">CN - Computer Networks</option>
+              <option value="Maths">Maths - Engg. Mathematics III</option>
+              <option value="DT">DT - Design Thinking Lab</option>
+              <option value="Python">Python - Python Programming</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Task Type</label>
+            <select class="form-select" id="task-form-type">
+              <option value="Assignment">Assignment</option>
+              <option value="Exam">Exam / Unit Test</option>
+              <option value="Project">Project / Mini Project</option>
+              <option value="Lab Record">Lab Record</option>
+              <option value="Activity">Activity / Seminar</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Due Date <span class="required-star">*</span></label>
+            <input type="date" class="form-input" id="task-form-duedate" value="2026-10-29">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Due Time</label>
+            <input type="time" class="form-input" id="task-form-duetime" value="23:59">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Priority Level</label>
+          <div class="priority-radio-group">
+            <label class="radio-card selected-high">
+              <input type="radio" name="task-priority" value="High" checked>
+              <span>🔴 High</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="task-priority" value="Medium">
+              <span>🟡 Medium</span>
+            </label>
+            <label class="radio-card">
+              <input type="radio" name="task-priority" value="Low">
+              <span>🟢 Low</span>
+            </label>
+          </div>
+          <div class="suggested-hint" id="priority-suggested-hint">
+            💡 Priority is suggested automatically based on proximity to deadline if not explicitly chosen.
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description / Notes (Optional)</label>
+          <textarea class="form-textarea" id="task-form-description" rows="3" placeholder="Submission guidelines, reference links, upload format..."></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeAddTaskModal()">Cancel</button>
+        <button class="btn btn-primary" id="task-submit-btn">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: PAST DATE WARNING (Exp 9 Issue 1 / TC04 Fix) -->
+  <div class="modal-backdrop" id="past-date-modal">
+    <div class="modal-box" style="max-width: 440px;">
+      <div class="modal-header">
+        <h3 style="color: var(--priority-med);">⚠️ Past Due Date Warning</h3>
+        <button class="btn-icon" onclick="cancelPastDateSave()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem; line-height: 1.6;">
+          The chosen due date is earlier than today's date (<strong>26 Oct 2026</strong>).
+        </p>
+        <div style="background: var(--priority-med-bg); border-left: 4px solid var(--priority-med); padding: 12px; border-radius: 6px; margin-top: 12px; font-size: 0.82rem;">
+          Saving this task will immediately flag it as <strong>OVERDUE</strong> and escalate priority to <strong>High</strong> (FR13 / TC04).
+        </div>
+        <p style="font-size: 0.88rem; margin-top: 14px; font-weight: 600;">
+          Do you wish to continue and record this past task?
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="cancelPastDateSave()">Correct Date</button>
+        <button class="btn btn-warning" onclick="confirmPastDateSave()">Yes, Save Anyway</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: SNOOZE ALERT (Enhancement E1 / TC09 / TC15) -->
+  <div class="modal-backdrop" id="snooze-modal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3>⏰ Snooze Deadline Reminder</h3>
+        <button class="btn-icon" onclick="closeSnoozeModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.88rem; color: var(--text-muted); margin-bottom: 16px;">
+          Choose how long you want to postpone this reminder. The notification will reappear after the duration:
+        </p>
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+          <button class="btn btn-secondary" onclick="confirmSnooze(1)" style="justify-content: flex-start;">
+            <span>⏱️</span> Snooze for 1 Hour (TC15)
+          </button>
+          <button class="btn btn-secondary" onclick="confirmSnooze(3)" style="justify-content: flex-start;">
+            <span>⏳</span> Snooze for 3 Hours
+          </button>
+          <button class="btn btn-secondary" onclick="confirmSnooze(24)" style="justify-content: flex-start;">
+            <span>📅</span> Snooze until Tomorrow Morning
+          </button>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeSnoozeModal()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: DELETE CONFIRMATION -->
+  <div class="modal-backdrop" id="delete-task-modal">
+    <div class="modal-box" style="max-width: 420px;">
+      <div class="modal-header">
+        <h3 style="color: var(--priority-high);">Delete Task</h3>
+        <button class="btn-icon" onclick="closeDeleteModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <p style="font-size: 0.9rem;">
+          Are you sure you want to permanently delete this task? This will also remove all scheduled deadline alerts (US08 / UC03).
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeDeleteModal()">Cancel</button>
+        <button class="btn btn-danger" onclick="executeTaskDelete()">Confirm Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADD USER (Admin UC13 / US11) -->
+  <div class="modal-backdrop" id="add-user-modal">
+    <div class="modal-box" style="max-width: 480px;">
+      <div class="modal-header">
+        <h3>+ Add User Account</h3>
+        <button class="btn-icon" onclick="closeAddUserModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Roll / Staff ID <span class="required-star">*</span></label>
+          <input type="text" class="form-input" id="user-form-roll" placeholder="e.g. CS2360 or FAC-105">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name <span class="required-star">*</span></label>
+          <input type="text" class="form-input" id="user-form-name" placeholder="e.g. Priya Sharma">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email Address <span class="required-star">*</span></label>
+          <input type="email" class="form-input" id="user-form-email" placeholder="e.g. priya.sharma@rscoe.edu.in">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <select class="form-select" id="user-form-role">
+              <option value="student">Student</option>
+              <option value="faculty">Faculty</option>
+              <option value="admin">Administrator</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Batch / Department</label>
+            <input type="text" class="form-input" id="user-form-batch" value="SY-C2">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeAddUserModal()">Cancel</button>
+        <button class="btn btn-primary" id="btn-save-new-user">Create User Account</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
+  <!-- Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/models.js"></script>
+  <script src="js/tests.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

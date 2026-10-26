@@ -1,0 +1,23 @@
+{
+  "name": "student-deadline-academic-planner",
+  "version": "1.0.0",
+  "description": "Student Deadline & Academic Planner - Design Thinking Lab Prototype & Models (CS2308L - Experiments 7 to 10)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": [
+    "design-thinking",
+    "academic-planner",
+    "deadline-tracker",
+    "student-portal",
+    "rscoe-pune"
+  ],
+  "author": "Arnav Vaidya (CS2351 / SY-C2)",
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2"
+  }
+}
