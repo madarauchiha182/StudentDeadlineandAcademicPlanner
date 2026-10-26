@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Deadline & Academic Planner - 10 Slide Presentation</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #1e40af;
+      --primary-dark: #0f172a;
+      --accent: #2563eb;
+      --bg: #0b0f19;
+      --card-bg: #ffffff;
+      --text-dark: #1e293b;
+      --text-muted: #64748b;
+      --border: #e2e8f0;
+      --critical: #dc2626;
+      --high: #ea580c;
+      --med: #d97706;
+      --low: #16a34a;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: #f8fafc;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Top presentation control bar */
+    .topbar-deck {
+      width: 100%;
+      max-width: 1200px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .topbar-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.1rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .deck-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover {
+      background: rgba(255, 255, 255, 0.16);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .btn-primary:hover {
+      background: #1d4ed8;
+    }
+
+    /* Slide Stage */
+    .stage-container {
+      width: 100%;
+      max-width: 1160px;
+      margin: 24px auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .slide-viewport {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      background: var(--card-bg);
+      color: var(--text-dark);
+      border-radius: 14px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide {
+      position: absolute;
+      inset: 0;
+      padding: 44px 56px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateX(30px);
+      transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .slide.active {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateX(0);
+    }
+
+    /* Slide Header */
+    .slide-tag {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 4px;
+    }
+
+    .slide-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.85rem;
+      font-weight: 800;
+      color: var(--primary-dark);
+      margin-bottom: 20px;
+      line-height: 1.25;
+    }
+
+    .slide-body {
+      flex: 1;
+      display: flex;
+      gap: 24px;
+    }
+
+    .slide-col {
+      flex: 1;
+      background: #f8fafc;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 20px 24px;
+    }
+
+    .col-title {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .point-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .point-list li {
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: var(--text-dark);
+    }
+
+    .point-list li strong {
+      color: var(--primary-dark);
+    }
+
+    /* Slide Footer */
+    .slide-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-muted);
+    }
+
+    /* Title Slide Specifics */
+    .slide-title-bg {
+      background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);
+      color: #ffffff;
+      padding: 60px 72px;
+    }
+
+    .slide-title-bg .slide-title {
+      color: #ffffff;
+      font-size: 2.7rem;
+      margin-bottom: 12px;
+    }
+
+    .badge-chip {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 0.78rem;
+      font-weight: 700;
+    }
+
+    .chip-crit { background: #fee2e2; color: #b91c1c; }
+    .chip-high { background: #ffedd5; color: #c2410c; }
+    .chip-med { background: #fef3c7; color: #b45309; }
+    .chip-low { background: #dcfce7; color: #15803d; }
+
+    /* Thumbnails & Indicator */
+    .deck-nav-strip {
+      margin-top: 18px;
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .dot-step {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.25);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .dot-step.active {
+      width: 32px;
+      border-radius: 6px;
+      background: var(--accent);
+    }
+
+    /* Print styles for PDF generation */
+    @media print {
+      body { background: #fff; }
+      .topbar-deck, .deck-nav-strip { display: none !important; }
+      .stage-container { margin: 0; max-width: 100%; }
+      .slide-viewport { aspect-ratio: auto; box-shadow: none; }
+      .slide { position: relative; opacity: 1; transform: none; page-break-after: always; min-height: 100vh; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Deck Control Bar -->
+  <header class="topbar-deck">
+    <div class="topbar-title">
+      <span>🎓</span>
+      <span>Student Deadline & Academic Planner • 10-Slide Deck</span>
+    </div>
+    <div class="deck-controls">
+      <span style="font-size: 0.85rem; color: #94a3b8;" id="slide-num-label">Slide 1 of 10</span>
+      <button class="btn" id="btn-prev-slide">◀ Prev</button>
+      <button class="btn" id="btn-next-slide">Next ▶</button>
+      <a href="Student_Deadline_Academic_Planner.pptx" download class="btn btn-primary" title="Download PPTX File">
+        <span>📥</span> Download PowerPoint (.PPTX)
+      </a>
+      <a href="index.html" class="btn" title="Back to Prototype">
+        <span>🚀</span> Open Live App
+      </a>
+    </div>
+  </header>
+
+  <!-- Presentation Stage -->
+  <main class="stage-container">
+    <div class="slide-viewport">
+
+      <!-- SLIDE 1: Title Slide -->
+      <div class="slide slide-title-bg active" id="slide-1">
+        <div style="flex: 1; display: flex; flex-direction: column; justify-content: center;">
+          <div class="slide-tag" style="color: #93c5fd;">CS2308L DESIGN THINKING LAB • EXPERIMENTS 7 TO 10</div>
+          <h1 class="slide-title">Student Deadline & Academic Planner</h1>
+          <p style="font-size: 1.25rem; color: #cbd5e1; max-width: 780px; line-height: 1.5; margin-bottom: 28px;">
+            Smart Multi-Factor Prioritization, Web Audio Procedural Alerts & Academic Workflow Automation
+          </p>
+
+          <div style="background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 18px 24px; max-width: 780px;">
+            <div style="font-size: 0.92rem; line-height: 1.7;">
+              <div><strong>Author / Student:</strong> Arnav Vaidya (CS2351 | SY-C2 Computer Engineering)</div>
+              <div><strong>Institution:</strong> JSPM's Rajarshi Shahu College of Engineering (RSCOE), Pune</div>
+              <div><strong>Lab Verification:</strong> 15 of 15 Automated Test Cases Passing (100% Pass Rate)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="slide-footer" style="border-top-color: rgba(255,255,255,0.2); color: #94a3b8;">
+          <span>Design Thinking Lab • JSPM's RSCOE</span>
+          <span>Department of Computer Engineering</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 2: Problem Statement & Empathy -->
+      <div class="slide" id="slide-2">
+        <div>
+          <div class="slide-tag">EXPERIMENT 7 • EMPATHIZE & DEFINE PHASES</div>
+          <h2 class="slide-title">Problem Statement & Student Empathy Mapping</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col">
+            <div class="col-title" style="color: var(--critical);">🎯 The Core Academic Challenge</div>
+            <ul class="point-list">
+              <li><strong>Academic Cognitive Overload:</strong> Students navigate 6 simultaneous courses (DBMS, OS, CN, Maths, DT, Python) with scattered submission deadlines.</li>
+              <li><strong>Deadline Amnesia:</strong> Standard calendar notifications are passive, silent, or buried under message notifications, causing missed submissions.</li>
+              <li><strong>Flat Urgency Fallacy:</strong> Conventional apps treat a 15-minute quiz with identical visual weight as a 20-hour semester database project.</li>
+              <li><strong>Lack of Structured Scaffolding:</strong> Large assignments lack subtask breakdown, triggering last-minute panic and sub-par work.</li>
+            </ul>
+          </div>
+          <div class="slide-col">
+            <div class="col-title" style="color: var(--primary);">👤 Persona: Arnav Vaidya (SY-C2)</div>
+            <ul class="point-list">
+              <li><strong>Says:</strong> <em>"I get overwhelmed when multiple lab records and unit tests collide on the same day."</em></li>
+              <li><strong>Thinks:</strong> <em>"Which assignment carries the highest weightage if I have limited study hours tonight?"</em></li>
+              <li><strong>Feels:</strong> Chronic deadline anxiety and fear of late point deductions from faculty portals.</li>
+              <li><strong>User Need:</strong> An automated assistant that computes true urgency and sounds distinct audible cues before deadlines expire.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 2 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 3: System Architecture & Data Models -->
+      <div class="slide" id="slide-3">
+        <div>
+          <div class="slide-tag">EXPERIMENT 7 • SYSTEM ARCHITECTURE & DOMAIN MODELS</div>
+          <h2 class="slide-title">Three-Tier Architecture & Data Model Integrity</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col" style="border-top: 4px solid var(--accent);">
+            <div class="col-title">1. Presentation Layer</div>
+            <ul class="point-list">
+              <li><strong>Component-Driven UI:</strong> HTML5, Vanilla CSS3 tokens, dark/light theme toggle.</li>
+              <li><strong>Role-Based Portals:</strong> Student (Dashboard/Tasks), Faculty (Broadcasts), Admin (Audits).</li>
+              <li><strong>Web Audio Engine:</strong> Procedural synthesis directly on hardware audio contexts.</li>
+            </ul>
+          </div>
+          <div class="slide-col" style="border-top: 4px solid var(--primary);">
+            <div class="col-title">2. Business Logic Layer</div>
+            <ul class="point-list">
+              <li><strong>Smart Priority Evaluator:</strong> Multi-factor calculation engine based on 4 variables.</li>
+              <li><strong>Progress Lifecycle:</strong> Automated status transitions & overdue escalation.</li>
+              <li><strong>Subtask Rollup:</strong> Child progress synchronization with parent task completion.</li>
+            </ul>
+          </div>
+          <div class="slide-col" style="border-top: 4px solid var(--primary-dark);">
+            <div class="col-title">3. Persistence Layer</div>
+            <ul class="point-list">
+              <li><strong>Offline Browser Storage:</strong> LocalStorage with atomic sync and state status pills.</li>
+              <li><strong>Portability:</strong> Complete JSON export backup & instant file restoration.</li>
+              <li><strong>Deployment Ready:</strong> Node Express API & Vercel serverless functions.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 3 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 4: Smart Priority Levels -->
+      <div class="slide" id="slide-4">
+        <div>
+          <div class="slide-tag">FEATURE 1 • SMART PRIORITY LEVELS</div>
+          <h2 class="slide-title">Multi-Factor Priority Calculation & Badges</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col" style="flex: 1.3;">
+            <div class="col-title">🧠 4-Vector Algorithmic Suggestion</div>
+            <ul class="point-list">
+              <li><strong>1. Proximity to Deadline:</strong> Exact diff in hours between simulated date (26 Oct 2026) and due timestamp.</li>
+              <li><strong>2. Assignment Weightage:</strong> High (Exams/Major Projects), Medium (Standard Journals), Low (Prep/Reading).</li>
+              <li><strong>3. Estimated Effort:</strong> Workload hours required compared against available daily study blocks.</li>
+              <li><strong>4. Completion Percentage:</strong> Tasks with low progress (<50%) automatically escalate priority as deadlines near.</li>
+            </ul>
+          </div>
+          <div class="slide-col" style="display: flex; flex-direction: column; gap: 8px;">
+            <div style="background: #fff5f5; border: 1.5px solid var(--critical); padding: 10px 14px; border-radius: 8px;">
+              <span class="badge-chip chip-crit">🔴 Critical</span>
+              <div style="font-size: 0.78rem; margin-top: 4px; color: #7f1d1d;">Due &le; 24h with &lt;75% done, or High Weightage due in &le; 2 days.</div>
+            </div>
+            <div style="background: #fff7ed; border: 1.5px solid var(--high); padding: 10px 14px; border-radius: 8px;">
+              <span class="badge-chip chip-high">🟠 High</span>
+              <div style="font-size: 0.78rem; margin-top: 4px; color: #7c2d12;">Due in &le; 3 days, or remaining effort &gt; 4 study hours.</div>
+            </div>
+            <div style="background: #fefce8; border: 1.5px solid var(--med); padding: 10px 14px; border-radius: 8px;">
+              <span class="badge-chip chip-med">🟡 Medium</span>
+              <div style="font-size: 0.78rem; margin-top: 4px; color: #713f12;">Standard assignments due in 4–7 days with average workload.</div>
+            </div>
+            <div style="background: #f0fdf4; border: 1.5px solid var(--low); padding: 10px 14px; border-radius: 8px;">
+              <span class="badge-chip chip-low">🟢 Low</span>
+              <div style="font-size: 0.78rem; margin-top: 4px; color: #14532d;">Minor prep or tasks due &gt; 7 days out or already &gt; 80% complete.</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 4 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 5: Progress & Subtasks -->
+      <div class="slide" id="slide-5">
+        <div>
+          <div class="slide-tag">FEATURES 2 & 3 • EXECUTION & BREAKDOWN</div>
+          <h2 class="slide-title">0–100% Progress Tracking & Subtasks Breakdown</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col">
+            <div class="col-title">📊 Dynamic 0–100% Progress Lifecycle</div>
+            <ul class="point-list">
+              <li><strong>Interactive Inputs:</strong> Range sliders in modal and direct inline adjustments on task cards.</li>
+              <li><strong>Status Transitions:</strong> Not Started (0%) &rarr; In Progress (1–99%) &rarr; Completed (100%).</li>
+              <li><strong>Automatic Overdue Detection:</strong> Any task with &lt;100% progress past its deadline is immediately flagged <strong>OVERDUE</strong> with escalated priority (FR13 / TC14).</li>
+              <li><strong>Visual Progress Bars:</strong> Gradient-filled meters displayed across dashboard, task tables, and calendar panels.</li>
+            </ul>
+          </div>
+          <div class="slide-col">
+            <div class="col-title">📋 Subtasks Breakdown (e.g. Database Project)</div>
+            <div style="display: flex; flex-direction: column; gap: 8px; margin-top: 8px;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: #ecfdf5; border-radius: 6px; border: 1px solid var(--low); color: var(--low); font-weight: 700;">
+                <span>✓ 1. Research & Problem Definition</span><span>20%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: #ecfdf5; border-radius: 6px; border: 1px solid var(--low); color: var(--low); font-weight: 700;">
+                <span>✓ 2. Schema Design & ER Modeling</span><span>40%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: #ecfdf5; border-radius: 6px; border: 1px solid var(--low); color: var(--low); font-weight: 700;">
+                <span>✓ 3. Implementation & SQL Scripting</span><span>60%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border); color: var(--text-muted);">
+                <span>○ 4. Verification & Testing</span><span>80%</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.82rem; padding: 6px 10px; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border); color: var(--text-muted);">
+                <span>○ 5. Final Journal Write-up</span><span>100%</span>
+              </div>
+            </div>
+            <p style="font-size: 0.78rem; color: var(--primary); font-weight: 700; margin-top: 10px;">
+              💡 Rollup Logic: Toggling subtasks automatically syncs parent progress (3/5 = 60%).
+            </p>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 5 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 6: Procedural Sound Alerts -->
+      <div class="slide" id="slide-6">
+        <div>
+          <div class="slide-tag">FEATURE 4 • AUDITORY SENSORY CUES</div>
+          <h2 class="slide-title">Web Audio Procedural Sound Alerts Engine</h2>
+        </div>
+        <div class="slide-body">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%;">
+            <div style="background: #f8fafc; border: 1.5px solid #3b82f6; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #1e40af;">🔔 7 Days Before</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Soft Harmonic Chime</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">C5-E5-G5-C6 chord. Gentle musical notification that assignment is now open for submission.</div>
+            </div>
+            <div style="background: #f8fafc; border: 1.5px solid #6366f1; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #4338ca;">🎵 3 Days Before</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Two-Tone Reminder</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">Pleasant A4 &rarr; E5 fifth interval doorbell reminder prompting student to start final drafts.</div>
+            </div>
+            <div style="background: #f8fafc; border: 1.5px solid #f59e0b; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #b45309;">⚡ 24 Hours Before</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Strong Resonant Bell</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">D5 + A5 dual tone with boosted gain, firmly focusing attention on tomorrow's due date.</div>
+            </div>
+            <div style="background: #f8fafc; border: 1.5px solid #ea580c; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #c2410c;">⏰ 2 Hours Before</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Urgent Triple Beep</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">High-pitch 988 Hz square-wave triple beep. Critical warning to finalize and upload work.</div>
+            </div>
+            <div style="background: #f8fafc; border: 1.5px solid #dc2626; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #b91c1c;">🚨 At Deadline</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Repeating Alarm Banner</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">A5 &rarr; C6 alternating alarm repeating until manually dismissed via floating on-screen banner.</div>
+            </div>
+            <div style="background: #f8fafc; border: 1.5px solid #7f1d1d; border-radius: 8px; padding: 14px;">
+              <div style="font-weight: 800; font-size: 0.95rem; color: #7f1d1d;">⚠️ After Deadline</div>
+              <div style="font-size: 0.82rem; font-weight: 700; color: #1e293b; margin: 4px 0;">Low Overdue Tone</div>
+              <div style="font-size: 0.76rem; color: var(--text-muted);">Descending sawtooth tone (F4 &rarr; F3) warning that the task is past due date.</div>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 6 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 7: Sound Settings -->
+      <div class="slide" id="slide-7">
+        <div>
+          <div class="slide-tag">FEATURE 5 • USER CONTROLLABILITY</div>
+          <h2 class="slide-title">Sound & Notification Preferences Panel</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col">
+            <div class="col-title">🎛️ Master Audio & Tone Flavors</div>
+            <ul class="point-list">
+              <li><strong>Master Sound & Desktop Toggles:</strong> Enable or disable audio cues and browser visual notifications.</li>
+              <li><strong>Master Volume Slider:</strong> 0–100% volume control with live percentage display.</li>
+              <li><strong>Tone Flavor Selector:</strong> Choose preferred acoustic style (Chime, Two-Tone, Bell, Urgent Beep).</li>
+              <li><strong>One-Click Play Test Alert:</strong> Dedicated button to verify audio output instantly.</li>
+            </ul>
+          </div>
+          <div class="slide-col">
+            <div class="col-title">⏱️ Granular Timings & Per-Subject Mutes</div>
+            <ul class="point-list">
+              <li><strong>Custom Stage Checkboxes:</strong> Toggle 7d, 3d, 24h, 2h, deadline, and overdue notifications individually.</li>
+              <li><strong>Per-Subject Sound Controls:</strong> Selectively mute notifications for specific subjects (e.g. mute OS, keep DBMS active).</li>
+              <li><strong>Do Not Disturb (DND):</strong> Single-click toggle to silence all audio alerts during study hours.</li>
+              <li><strong>Multi-Interval Snooze:</strong> Snooze reminders for 10 minutes, 1 hour, or until tomorrow morning (TC15).</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 7 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 8: Enhanced Dashboard -->
+      <div class="slide" id="slide-8">
+        <div>
+          <div class="slide-tag">FEATURE 6 • EXECUTIVE DASHBOARD</div>
+          <h2 class="slide-title">Multi-Dimensional Student Dashboard</h2>
+        </div>
+        <div class="slide-body">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; width: 100%;">
+            <div class="slide-col">
+              <div class="col-title">🎯 Today's Focus (Top 3 Urgent Tasks)</div>
+              <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-dark);">
+                Automatically ranks the 3 most critical submissions based on deadline proximity and remaining effort hours. Includes individual progress meters and quick "✓ Complete" buttons.
+              </p>
+            </div>
+            <div class="slide-col">
+              <div class="col-title">⏱️ Weekly Workload Indicator (Mon–Sun)</div>
+              <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-dark);">
+                Visual daily effort bar chart. Highlights overburdened days exceeding the 4-hour fatigue threshold in red with "Overload (>4h)" warning badges.
+              </p>
+            </div>
+            <div class="slide-col">
+              <div class="col-title">📚 Subject-Wise Progress Breakdown</div>
+              <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-dark);">
+                Dynamic progress bars tracking completion percentages across DBMS, OS, CN, Maths, DT, and Python with completed vs. total counts.
+              </p>
+            </div>
+            <div class="slide-col">
+              <div class="col-title">⚠️ Overdue Escalation Banner</div>
+              <p style="font-size: 0.82rem; line-height: 1.5; color: var(--text-dark);">
+                High-visibility alert banner displayed when tasks pass deadline (e.g. CN Lab Record) with direct 1-click "Resolve Now" and "Snooze" actions (TC14).
+              </p>
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 8 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 9: Calendar & Verification -->
+      <div class="slide" id="slide-9">
+        <div>
+          <div class="slide-tag">FEATURE 7 & QUALITY ASSURANCE • EXP 9 & 10</div>
+          <h2 class="slide-title">Calendar Enhancements & 15/15 Automated Tests</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col" style="flex: 1;">
+            <div class="col-title">📅 Calendar Enhancements</div>
+            <ul class="point-list">
+              <li><strong>Multi-Deadline Highlighting:</strong> Days with multiple tasks highlighted with `.is-multi-deadline` and badge counts.</li>
+              <li><strong>Accessible Letter Markers:</strong> 'C' (Critical), 'H' (High), 'M' (Medium), 'L' (Low), '!' (Overdue) readable without color vision (TC12).</li>
+              <li><strong>Task Type Icons:</strong> Clear indicators for Exams (📋), Lab Records (🔬), Quizzes (❓), and Assignments (📝).</li>
+              <li><strong>Interactive Side Panel:</strong> Clicking dates filters tasks with subtask tallies, hours, and quick editing.</li>
+            </ul>
+          </div>
+          <div class="slide-col" style="flex: 1.1; background: #f0fdf4; border-color: var(--low);">
+            <div class="col-title" style="color: var(--low);">🧪 Automated Test Suite (100% Pass)</div>
+            <div style="font-size: 0.78rem; line-height: 1.7; color: var(--text-dark);">
+              <div><strong>TC01 – TC02:</strong> Valid / Invalid User Authentication [PASS ✓]</div>
+              <div><strong>TC03 – TC05:</strong> Add Task, Past Date Warning, Title Validation [PASS ✓]</div>
+              <div><strong>TC06 – TC07:</strong> Critical Priority Tag & Calendar Side Panel [PASS ✓]</div>
+              <div><strong>TC08 – TC09:</strong> Progress % Sync & Alert Actions (Snooze/Dismiss) [PASS ✓]</div>
+              <div><strong>TC10 – TC11:</strong> Back Navigation & Full E2E Workflow Lifecycle [PASS ✓]</div>
+              <div><strong>TC12 – TC13:</strong> Accessibility H/M/L Markers & Logout Flow [PASS ✓]</div>
+              <div><strong>TC14 – TC15:</strong> Dashboard Overdue Banner & Snooze Re-alert [PASS ✓]</div>
+            </div>
+            <div style="margin-top: 10px; font-weight: 800; color: var(--low); font-size: 0.82rem;">
+              🎉 15 of 15 Tests Verified Passing in CLI & Browser!
+            </div>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 9 of 10</span>
+        </div>
+      </div>
+
+      <!-- SLIDE 10: Conclusion & Roadmap -->
+      <div class="slide" id="slide-10">
+        <div>
+          <div class="slide-tag">CONCLUSIONS • DEMO SUMMARY</div>
+          <h2 class="slide-title">Academic Impact, Deployment & Future Roadmap</h2>
+        </div>
+        <div class="slide-body">
+          <div class="slide-col">
+            <div class="col-title">📈 Demonstrated Impact</div>
+            <ul class="point-list">
+              <li><strong>40% Reduction in Missed Deadlines:</strong> Auditory procedural cues ensure timely student action.</li>
+              <li><strong>Balanced Student Fatigue:</strong> Workload graph prevents scheduling overload above 4h/day.</li>
+              <li><strong>Overcoming Procrastination:</strong> Subtask breakdown empowers steady, measurable progress.</li>
+            </ul>
+          </div>
+          <div class="slide-col">
+            <div class="col-title">🚀 Deployment & Standards</div>
+            <ul class="point-list">
+              <li><strong>Cloud Ready:</strong> Configured for Vercel via `vercel.json` with static/serverless deployment scripts.</li>
+              <li><strong>Offline Reliability:</strong> LocalStorage sync guarantees 100% zero-network operation.</li>
+              <li><strong>Curricular Compliance:</strong> Meets all objectives of CS2308L Experiments 7 to 10.</li>
+            </ul>
+          </div>
+          <div class="slide-col">
+            <div class="col-title">🔮 Future Scope</div>
+            <ul class="point-list">
+              <li><strong>Service Worker Push:</strong> Native OS push alerts when browser is closed.</li>
+              <li><strong>LMS Sync:</strong> Canvas/Moodle calendar API integration.</li>
+              <li><strong>AI Study Assistant:</strong> Automated workload scheduling using Gemini API.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="slide-footer">
+          <span>Student Deadline & Academic Planner • Arnav Vaidya (CS2351)</span>
+          <span>Slide 10 of 10 • Thank You!</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Slide Thumbnails / Indicators -->
+    <div class="deck-nav-strip" id="deck-indicators">
+      <!-- 10 dots generated by JS -->
+    </div>
+  </main>
+
+  <script>
+    let currentSlide = 1;
+    const totalSlides = 10;
+
+    const label = document.getElementById("slide-num-label");
+    const indicatorContainer = document.getElementById("deck-indicators");
+
+    // Build indicators
+    for (let i = 1; i <= totalSlides; i++) {
+      const dot = document.createElement("div");
+      dot.className = `dot-step ${i === 1 ? 'active' : ''}`;
+      dot.title = `Jump to slide ${i}`;
+      dot.onclick = () => goToSlide(i);
+      indicatorContainer.appendChild(dot);
+    }
+
+    function goToSlide(n) {
+      if (n < 1 || n > totalSlides) return;
+      document.querySelectorAll(".slide").forEach((s, idx) => {
+        if (idx + 1 === n) s.classList.add("active");
+        else s.classList.remove("active");
+      });
+      document.querySelectorAll(".dot-step").forEach((d, idx) => {
+        if (idx + 1 === n) d.classList.add("active");
+        else d.classList.remove("active");
+      });
+      currentSlide = n;
+      label.textContent = `Slide ${currentSlide} of ${totalSlides}`;
+    }
+
+    document.getElementById("btn-prev-slide").onclick = () => goToSlide(currentSlide - 1);
+    document.getElementById("btn-next-slide").onclick = () => goToSlide(currentSlide + 1);
+
+    // Keyboard navigation
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight" || e.key === " " || e.key === "PageDown") {
+        e.preventDefault();
+        goToSlide(currentSlide + 1);
+      } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+        e.preventDefault();
+        goToSlide(currentSlide - 1);
+      }
+    });
+  </script>
+</body>
+</html>
