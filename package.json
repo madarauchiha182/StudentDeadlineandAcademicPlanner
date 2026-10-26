@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "node run-tests-cli.js",
+    "deploy": "vercel --prod"
   },
   "keywords": [
     "design-thinking",
