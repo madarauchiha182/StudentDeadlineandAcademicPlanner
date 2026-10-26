@@ -14,7 +14,7 @@ function checkEndpoint(pathname) {
 
 async function run() {
   console.log('Testing server endpoints on http://localhost:3001 ...');
-  const endpoints = ['/', '/api/tasks', '/api/alerts', '/api/reports/class', '/css/styles.css', '/js/app.js'];
+  const endpoints = ['/', '/api/tasks', '/api/alerts', '/api/reports/class', '/css/styles.css', '/js/sound-alerts.js', '/js/app.js'];
   for (const ep of endpoints) {
     const res = await checkEndpoint(ep);
     console.log(`[HTTP ${res.statusCode}] ${ep.padEnd(22)} (${res.length} bytes, ${res.contentType})`);

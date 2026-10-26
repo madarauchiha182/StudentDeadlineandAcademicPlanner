@@ -66,14 +66,21 @@ const SEED_TASKS = [
     type: "Lab Record",
     dueDate: "2026-10-25",
     dueTime: "17:00",
-    priority: "High",
+    priority: "Critical",
+    weightage: "High",
+    estimatedHours: 3,
+    progressPercent: 50,
     status: "Overdue",
     description: "Submit completed write-up and wireshark packet capture analysis for Experiment 4.",
     isFacultyPosted: false,
     batch: "SY-C2",
-    createdAt: "2026-10-18T10:00:00"
+    createdAt: "2026-10-18T10:00:00",
+    subtasks: [
+      { id: "sub-1-1", title: "Wireshark packet capture & screenshots", completed: true, dueDate: "2026-10-24" },
+      { id: "sub-1-2", title: "Submit finalized journal PDF", completed: false, dueDate: "2026-10-25" }
+    ]
   },
-  // 2. OS Unit Test - High Priority due tomorrow 27 Oct 2026
+  // 2. OS Unit Test - Critical Priority due tomorrow 27 Oct 2026
   {
     id: "task-002",
     title: "OS Unit Test",
@@ -81,12 +88,20 @@ const SEED_TASKS = [
     type: "Exam",
     dueDate: "2026-10-27",
     dueTime: "10:00",
-    priority: "High",
-    status: "Not started",
+    priority: "Critical",
+    weightage: "High",
+    estimatedHours: 6,
+    progressPercent: 33,
+    status: "In progress",
     description: "Unit Test covering Process Scheduling, Deadlocks, and Semaphores in Room 304.",
     isFacultyPosted: true,
     batch: "SY-C2",
-    createdAt: "2026-10-15T09:30:00"
+    createdAt: "2026-10-15T09:30:00",
+    subtasks: [
+      { id: "sub-2-1", title: "Revise CPU Scheduling (FCFS, SJF, RR)", completed: true, dueDate: "2026-10-26" },
+      { id: "sub-2-2", title: "Study Deadlock Banker's algorithm", completed: false, dueDate: "2026-10-26" },
+      { id: "sub-2-3", title: "Solve practice numericals", completed: false, dueDate: "2026-10-27" }
+    ]
   },
   // 3. DBMS Assignment 3 - High Priority due 29 Oct 2026
   {
@@ -97,26 +112,41 @@ const SEED_TASKS = [
     dueDate: "2026-10-29",
     dueTime: "23:59",
     priority: "High",
+    weightage: "High",
+    estimatedHours: 4,
+    progressPercent: 66,
     status: "In progress",
     description: "Solve SQL normalization questions (3NF & BCNF) with ER-to-relational schema mapping.",
     isFacultyPosted: true,
     batch: "SY-C2",
-    createdAt: "2026-10-20T11:00:00"
+    createdAt: "2026-10-20T11:00:00",
+    subtasks: [
+      { id: "sub-3-1", title: "Identify functional dependencies", completed: true, dueDate: "2026-10-27" },
+      { id: "sub-3-2", title: "Normalize schema to 3NF & BCNF", completed: true, dueDate: "2026-10-28" },
+      { id: "sub-3-3", title: "Format relational schema & submission link", completed: false, dueDate: "2026-10-29" }
+    ]
   },
   // 4. Maths Quiz prep - Medium Priority due 30 Oct 2026
   {
     id: "task-004",
     title: "Maths Quiz prep",
     subject: "Maths",
-    type: "Exam",
+    type: "Quiz",
     dueDate: "2026-10-30",
     dueTime: "14:00",
     priority: "Medium",
+    weightage: "Medium",
+    estimatedHours: 3,
+    progressPercent: 0,
     status: "Not started",
     description: "Online Moodle Quiz on Fourier Transforms and Vector Calculus.",
     isFacultyPosted: false,
     batch: "SY-C2",
-    createdAt: "2026-10-22T14:15:00"
+    createdAt: "2026-10-22T14:15:00",
+    subtasks: [
+      { id: "sub-4-1", title: "Review Fourier series sheet", completed: false, dueDate: "2026-10-28" },
+      { id: "sub-4-2", title: "Practice gradient and divergence formulas", completed: false, dueDate: "2026-10-29" }
+    ]
   },
   // 5. Seminar slides - Medium Priority due 2 Nov 2026
   {
@@ -127,11 +157,18 @@ const SEED_TASKS = [
     dueDate: "2026-11-02",
     dueTime: "23:59",
     priority: "Medium",
+    weightage: "Medium",
+    estimatedHours: 2,
+    progressPercent: 0,
     status: "Not started",
     description: "Prepare presentation deck for Experiment 10 prototype demonstration and deployment strategy.",
     isFacultyPosted: false,
     batch: "SY-C2",
-    createdAt: "2026-10-24T16:00:00"
+    createdAt: "2026-10-24T16:00:00",
+    subtasks: [
+      { id: "sub-5-1", title: "Draft slide outline", completed: false, dueDate: "2026-10-31" },
+      { id: "sub-5-2", title: "Rehearse 5-minute presentation script", completed: false, dueDate: "2026-11-01" }
+    ]
   },
   // 6. Python Mini Project - Low Priority due 5 Nov 2026 (Completed)
   {
@@ -142,11 +179,19 @@ const SEED_TASKS = [
     dueDate: "2026-11-05",
     dueTime: "23:59",
     priority: "Low",
+    weightage: "Medium",
+    estimatedHours: 8,
+    progressPercent: 100,
     status: "Completed",
     description: "GUI Tkinter/Flask project for library seat reservation system.",
     isFacultyPosted: false,
     batch: "SY-C2",
-    createdAt: "2026-10-10T12:00:00"
+    createdAt: "2026-10-10T12:00:00",
+    subtasks: [
+      { id: "sub-6-1", title: "Tkinter UI wireframe", completed: true },
+      { id: "sub-6-2", title: "SQLite database connection", completed: true },
+      { id: "sub-6-3", title: "Seat reservation logic", completed: true }
+    ]
   },
   // 7. Additional completed tasks to reach exactly 12 completed of 21 total tasks (57%) as shown in Screen 2:
   {
@@ -308,16 +353,26 @@ const SEED_TASKS = [
   // Pending tasks to make total = 21 (12 Done + 1 Overdue + 8 Pending/In-Progress):
   {
     id: "task-019",
-    title: "DBMS Mini Project Schema Design",
+    title: "Database Project",
     subject: "DBMS",
     type: "Project",
     dueDate: "2026-11-08",
     dueTime: "23:59",
-    priority: "Medium",
-    status: "Not started",
-    description: "Drafting schema and integrity constraints for course portal.",
+    priority: "High",
+    weightage: "High",
+    estimatedHours: 15,
+    progressPercent: 40,
+    status: "In progress",
+    description: "Course registration portal database system with normalisation and stored procedures.",
     isFacultyPosted: true,
-    batch: "SY-C2"
+    batch: "SY-C2",
+    subtasks: [
+      { id: "sub-19-1", title: "Research requirements and user stories", completed: true, dueDate: "2026-10-30" },
+      { id: "sub-19-2", title: "Design ER diagram & schema normalization", completed: true, dueDate: "2026-11-02" },
+      { id: "sub-19-3", title: "Implementation: DDL & DML queries", completed: false, dueDate: "2026-11-05" },
+      { id: "sub-19-4", title: "Testing queries & integrity constraints", completed: false, dueDate: "2026-11-07" },
+      { id: "sub-19-5", title: "Project documentation report", completed: false, dueDate: "2026-11-08" }
+    ]
   },
   {
     id: "task-020",

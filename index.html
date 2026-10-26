@@ -51,6 +51,11 @@
           <span>🧪</span> 15/15 Test Runner
           <span class="nav-badge badge-primary">Exp 9-10</span>
         </a>
+
+        <div class="nav-label">Preferences</div>
+        <a class="nav-item" data-view="settings" id="nav-settings">
+          <span>🔊</span> Sound & Alerts Settings
+        </a>
       </nav>
 
       <div class="sidebar-footer">
@@ -81,6 +86,11 @@
         </div>
 
         <div class="topbar-right">
+          <!-- Enable Sound Alerts / Audio Unlock Button -->
+          <button class="btn btn-secondary btn-sm" id="btn-enable-sound-alerts" title="Enable Sound Alerts & Desktop Notifications">
+            <span>🔊</span> <span id="sound-status-label">Enable Audio</span>
+          </button>
+
           <!-- Backup / Restore Options -->
           <button class="btn btn-secondary btn-sm" id="btn-export-backup" title="Export JSON Data Backup">
             💾 Backup
@@ -166,6 +176,19 @@
             </div>
           </div>
 
+          <!-- Today's Focus Section (Feature 6) -->
+          <div class="card-panel" style="margin-bottom: 24px; border-left: 4px solid var(--primary);">
+            <div class="panel-header" style="margin-bottom: 12px;">
+              <div class="panel-title">
+                <span>🎯</span> <strong>Today's Focus — Top Urgent Tasks</strong>
+              </div>
+              <span style="font-size: 0.8rem; color: var(--text-muted);">Prioritized by urgency & remaining effort</span>
+            </div>
+            <div class="focus-grid" id="dashboard-focus-container">
+              <!-- Dynamically populated top 3 focus tasks -->
+            </div>
+          </div>
+
           <!-- Overall Progress Card (FR08 / TC08) -->
           <div class="progress-card">
             <div class="progress-header">
@@ -180,61 +203,61 @@
             </div>
           </div>
 
-          <!-- Dashboard Grid: Upcoming Deadlines & Quick Workload -->
+          <!-- Dashboard Grid: Deadlines & Workload -->
           <div class="dashboard-grid">
-            <div class="card-panel">
-              <div class="panel-header">
-                <div class="panel-title">
-                  <span>📌</span> Upcoming Deadlines (Date Order)
+            <!-- Left Column: Due This Week & Upcoming -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              <!-- Due Today & Due This Week (Feature 6) -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <span>⚡</span> Due This Week (26 Oct - 1 Nov 2026)
+                  </div>
+                  <span class="badge-status status-in-progress" id="due-week-count-badge">0 Due</span>
                 </div>
-                <button class="btn btn-secondary btn-sm" onclick="document.getElementById('nav-tasks').click()">View All Tasks</button>
+                <div id="dashboard-due-week-list">
+                  <!-- Dynamically populated tasks due this week -->
+                </div>
               </div>
-              <div id="dashboard-upcoming-list">
-                <!-- Dynamically loaded upcoming deadlines -->
+
+              <!-- Upcoming Deadlines (Date Order) -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <span>📌</span> All Upcoming Deadlines (Date Order)
+                  </div>
+                  <button class="btn btn-secondary btn-sm" onclick="document.getElementById('nav-tasks').click()">View All Tasks</button>
+                </div>
+                <div id="dashboard-upcoming-list">
+                  <!-- Dynamically loaded upcoming deadlines -->
+                </div>
               </div>
             </div>
 
-            <div class="card-panel">
-              <div class="panel-header">
-                <div class="panel-title">
-                  <span>📚</span> Subject Workload
+            <!-- Right Column: Workload Indicator & Subject Progress -->
+            <div style="display: flex; flex-direction: column; gap: 24px;">
+              <!-- Weekly Workload Indicator (Feature 6) -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <span>⏱️</span> Weekly Workload Indicator
+                  </div>
+                  <span style="font-size: 0.78rem; color: var(--text-muted);">Threshold: 4h/day</span>
+                </div>
+                <div id="dashboard-workload-container">
+                  <!-- Dynamically populated workload bar graph -->
                 </div>
               </div>
-              <div style="display: flex; flex-direction: column; gap: 14px;">
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                    <strong>DBMS (Prof. Kulkarni)</strong>
-                    <span>3 Tasks</span>
+
+              <!-- Subject-Wise Progress Bars (Feature 6) -->
+              <div class="card-panel">
+                <div class="panel-header">
+                  <div class="panel-title">
+                    <span>📚</span> Subject-Wise Progress
                   </div>
-                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
                 </div>
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                    <strong>OS (Prof. Kulkarni)</strong>
-                    <span>4 Tasks</span>
-                  </div>
-                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 75%;"></div></div>
-                </div>
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                    <strong>CN (Prof. Patil)</strong>
-                    <span>4 Tasks (1 Overdue)</span>
-                  </div>
-                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 75%; background: var(--priority-high);"></div></div>
-                </div>
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                    <strong>Maths III (Dr. Joshi)</strong>
-                    <span>3 Tasks</span>
-                  </div>
-                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
-                </div>
-                <div>
-                  <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 4px;">
-                    <strong>Design Thinking Lab (Prof. Shinde)</strong>
-                    <span>3 Tasks</span>
-                  </div>
-                  <div class="progress-track" style="height: 6px;"><div class="progress-bar-fill" style="width: 66%;"></div></div>
+                <div id="dashboard-subject-progress-list" style="display: flex; flex-direction: column; gap: 14px;">
+                  <!-- Dynamically populated subject progress bars -->
                 </div>
               </div>
             </div>
@@ -318,9 +341,10 @@
 
                 <select class="form-select" id="task-filter-priority" style="width: auto;">
                   <option value="All">All Priorities</option>
-                  <option value="High">High</option>
-                  <option value="Medium">Medium</option>
-                  <option value="Low">Low</option>
+                  <option value="Critical">🔴 Critical</option>
+                  <option value="High">🟠 High</option>
+                  <option value="Medium">🟡 Medium</option>
+                  <option value="Low">🟢 Low</option>
                 </select>
 
                 <select class="form-select" id="task-filter-status" style="width: auto;">
@@ -331,6 +355,13 @@
                   <option value="Overdue">Overdue</option>
                 </select>
 
+                <select class="form-select" id="task-sort-by" style="width: auto; font-weight: 600;">
+                  <option value="deadline">Sort: Deadline (Earliest)</option>
+                  <option value="priority">Sort: Priority (Critical First)</option>
+                  <option value="progress">Sort: Progress (Lowest First)</option>
+                  <option value="subject">Sort: Subject</option>
+                </select>
+
                 <button class="btn btn-primary" onclick="openAddTaskModal()">+ Add Task</button>
               </div>
             </div>
@@ -339,11 +370,12 @@
               <table class="task-table">
                 <thead>
                   <tr>
-                    <th>Task Name & Description</th>
+                    <th>Task Name & Subtasks</th>
                     <th>Subject</th>
                     <th>Due Date & Time</th>
                     <th>Priority</th>
-                    <th>Status (Inline Update)</th>
+                    <th>Progress (%)</th>
+                    <th>Status</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -656,6 +688,167 @@ CREATE INDEX idx_tasks_student ON tasks(student_id);
             </tbody>
           </table>
         </div>
+
+        <!-- VIEW 9: SOUND & NOTIFICATION SETTINGS (Feature 4 & 5) -->
+        <div class="tab-content" id="view-settings">
+          <div class="settings-section-card">
+            <div class="panel-header" style="border-bottom: 1px solid var(--border-light); padding-bottom: 14px; margin-bottom: 16px;">
+              <div>
+                <h3 style="font-size: 1.15rem; font-weight: 700;">🔊 Sound & Notification Preferences</h3>
+                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">
+                  Configure Web Audio synthesized chimes, browser desktop notifications, volume, and reminder timings.
+                </p>
+              </div>
+              <button class="btn btn-primary" id="btn-play-test-alert">
+                <span>▶</span> Play Test Alert
+              </button>
+            </div>
+
+            <!-- Master Toggles -->
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Sound Alerts</h4>
+                <p>Play custom procedural sound tones before and at deadlines</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setting-toggle-sound" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Browser Visual Notifications</h4>
+                <p>Display OS desktop alerts with task title, due time, and time remaining</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="btn btn-secondary btn-sm" id="btn-request-notif-perm">Request Browser Permission</button>
+                <label class="switch-toggle">
+                  <input type="checkbox" id="setting-toggle-browser-notif" checked>
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Volume Slider -->
+            <div class="setting-row" style="flex-wrap: wrap; gap: 12px;">
+              <div class="setting-info" style="min-width: 220px;">
+                <h4>Master Volume Control</h4>
+                <p>Adjust synthesize audio loudness (<span id="setting-volume-num">80%</span>)</p>
+              </div>
+              <div style="display: flex; align-items: center; gap: 12px; flex: 1; max-width: 320px;">
+                <span>🔈</span>
+                <input type="range" class="progress-slider-control" id="setting-volume-slider" min="0" max="100" value="80">
+                <span>🔊</span>
+              </div>
+            </div>
+
+            <!-- Tone Selection -->
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Alert Tone Flavor</h4>
+                <p>Choose your preferred audio character for default alerts</p>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <select class="form-select" id="setting-preferred-tone" style="width: auto; font-weight: 600;">
+                  <option value="chime">Soft Harmonic Chime</option>
+                  <option value="beep">Two-Tone Reminder</option>
+                  <option value="bell">Resonant Bell Alert</option>
+                  <option value="urgent">Urgent Triple Beep</option>
+                </select>
+                <button class="btn btn-secondary btn-sm" id="btn-preview-tone" title="Preview selected sound">▶ Listen</button>
+              </div>
+            </div>
+
+            <!-- Do Not Disturb (DND) -->
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>🌙 Do Not Disturb (DND) Mode</h4>
+                <p>Temporarily silence all sound alerts and visual notifications</p>
+              </div>
+              <label class="switch-toggle">
+                <input type="checkbox" id="setting-toggle-dnd">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Schedule Timings Section -->
+          <div class="settings-section-card">
+            <div class="panel-header" style="margin-bottom: 14px;">
+              <div class="panel-title">
+                <span>⏰</span> Editable Reminder Schedule Stages
+              </div>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+              Select which stages should trigger sound and notifications for your upcoming assignments:
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-7d" checked>
+                <span><strong>7 Days Before:</strong> Soft Chime</span>
+              </label>
+
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-3d" checked>
+                <span><strong>3 Days Before:</strong> Two-Tone Reminder</span>
+              </label>
+
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-1d" checked>
+                <span><strong>24 Hours Before:</strong> Stronger Alert</span>
+              </label>
+
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-2h" checked>
+                <span><strong>2 Hours Before:</strong> Urgent Triple Beep</span>
+              </label>
+
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-deadline" checked>
+                <span><strong>At Deadline:</strong> Repeating Alarm</span>
+              </label>
+
+              <label class="radio-card" style="cursor: pointer;">
+                <input type="checkbox" id="timing-stage-overdue" checked>
+                <span><strong>After Deadline:</strong> Low Overdue Warning</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Per-Subject Sound Preferences -->
+          <div class="settings-section-card">
+            <div class="panel-header" style="margin-bottom: 14px;">
+              <div class="panel-title">
+                <span>📚</span> Per-Subject Sound Alerts
+              </div>
+            </div>
+            <p style="font-size: 0.82rem; color: var(--text-muted); margin-bottom: 16px;">
+              Enable or mute deadline audio for specific academic subjects:
+            </p>
+            <div id="settings-subject-toggles-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+              <!-- Dynamically populated per subject -->
+            </div>
+          </div>
+
+          <!-- Default Snooze Preferences -->
+          <div class="settings-section-card">
+            <div class="panel-header" style="margin-bottom: 14px;">
+              <div class="panel-title">
+                <span>⏱️</span> Snooze Options
+              </div>
+            </div>
+            <div style="display: flex; gap: 16px; align-items: center;">
+              <span>Default Snooze Duration:</span>
+              <select class="form-select" id="setting-snooze-duration" style="width: auto;">
+                <option value="10">10 Minutes</option>
+                <option value="60" selected>1 Hour</option>
+                <option value="1440">Tomorrow Morning</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -710,30 +903,75 @@ CREATE INDEX idx_tasks_student ON tasks(student_id);
           </div>
         </div>
 
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Assignment Importance / Weightage</label>
+            <select class="form-select" id="task-form-weightage">
+              <option value="High">High (Major Exam / Heavy Project)</option>
+              <option value="Medium" selected>Medium (Standard Assignment / Quiz)</option>
+              <option value="Low">Low (Minor Activity / Prep)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Estimated Effort (Hours)</label>
+            <input type="number" class="form-input" id="task-form-hours" min="0.5" max="100" step="0.5" value="3">
+          </div>
+        </div>
+
         <div class="form-group">
-          <label class="form-label">Priority Level</label>
+          <label class="form-label">Priority Level (Smart Auto-Suggested)</label>
           <div class="priority-radio-group">
-            <label class="radio-card selected-high">
-              <input type="radio" name="task-priority" value="High" checked>
-              <span>🔴 High</span>
+            <label class="radio-card" id="radio-card-crit">
+              <input type="radio" name="task-priority" value="Critical">
+              <span>🔴 Critical</span>
             </label>
-            <label class="radio-card">
+            <label class="radio-card selected-high" id="radio-card-high">
+              <input type="radio" name="task-priority" value="High" checked>
+              <span>🟠 High</span>
+            </label>
+            <label class="radio-card" id="radio-card-med">
               <input type="radio" name="task-priority" value="Medium">
               <span>🟡 Medium</span>
             </label>
-            <label class="radio-card">
+            <label class="radio-card" id="radio-card-low">
               <input type="radio" name="task-priority" value="Low">
               <span>🟢 Low</span>
             </label>
           </div>
           <div class="suggested-hint" id="priority-suggested-hint">
-            💡 Priority is suggested automatically based on proximity to deadline if not explicitly chosen.
+            💡 Auto-suggests based on days remaining, importance weightage, estimated hours, and completion %.
           </div>
         </div>
 
+        <!-- Task Progress Tracking (Feature 2) -->
         <div class="form-group">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label class="form-label" style="margin-bottom: 0;">Task Completion Progress</label>
+            <span class="progress-slider-value" id="task-modal-progress-val">0%</span>
+          </div>
+          <div class="progress-input-group">
+            <input type="range" class="progress-slider-control" id="task-form-progress" min="0" max="100" value="0">
+          </div>
+        </div>
+
+        <!-- Subtasks Builder (Feature 3) -->
+        <div class="subtasks-section">
+          <div class="subtasks-header">
+            <strong style="font-size: 0.88rem;">📋 Subtasks Breakdown</strong>
+            <span style="font-size: 0.75rem; color: var(--text-muted);" id="modal-subtask-counter">0 subtasks</span>
+          </div>
+          <div class="subtask-list" id="task-modal-subtasks-container">
+            <!-- Dynamically populated subtask items -->
+          </div>
+          <div class="subtask-input-bar">
+            <input type="text" class="form-input" id="new-subtask-input" placeholder="e.g. Research, Design, Implementation, Testing, Report" style="font-size: 0.82rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btn-add-modal-subtask">+ Add Subtask</button>
+          </div>
+        </div>
+
+        <div class="form-group" style="margin-top: 16px;">
           <label class="form-label">Description / Notes (Optional)</label>
-          <textarea class="form-textarea" id="task-form-description" rows="3" placeholder="Submission guidelines, reference links, upload format..."></textarea>
+          <textarea class="form-textarea" id="task-form-description" rows="2" placeholder="Submission guidelines, reference links, upload format..."></textarea>
         </div>
       </div>
       <div class="modal-footer">
@@ -864,6 +1102,7 @@ CREATE INDEX idx_tasks_student ON tasks(student_id);
   <!-- Scripts -->
   <script src="js/data.js"></script>
   <script src="js/models.js"></script>
+  <script src="js/sound-alerts.js"></script>
   <script src="js/tests.js"></script>
   <script src="js/app.js"></script>
 </body>

@@ -147,10 +147,10 @@ class TestSuiteRunner {
 
   testTC06() {
     const task = this.model.tasks.find(t => t.title.includes("OS Unit Test"));
-    const passed = !!task && task.priority === "High";
+    const passed = !!task && (task.priority === "High" || task.priority === "Critical");
     return {
       passed,
-      expected: "Red High tag displayed on OS Unit Test task",
+      expected: "Red Critical or High tag displayed on OS Unit Test task",
       actual: passed ? `Priority is ${task.priority} with tag color Red` : "Priority tag missing",
       remarks: "FR04 / US03 verified"
     };

@@ -192,19 +192,46 @@ class AcademicPlannerModel {
     };
   }
 
-  // --- Priority Suggestion Formula (FR04 / US03 / A2) ---
-  suggestPriority(dueDateStr, dueTimeStr = "23:59") {
+  // --- Smart Multi-Factor Priority Suggestion Formula ---
+  suggestPriority(dueDateStr, dueTimeStr = "23:59", weightage = "Medium", estimatedHours = 2, progressPercent = 0) {
     if (!dueDateStr) return "Medium";
     const due = new Date(dueDateStr + "T" + dueTimeStr);
     const diffHours = (due - this.baseDate) / (1000 * 60 * 60);
+    const daysRemaining = diffHours / 24;
 
-    if (diffHours <= 48) {
-      return "High"; // Within 48 hours -> High priority
-    } else if (diffHours <= 120) { // 2 to 5 days
-      return "Medium";
-    } else {
-      return "Low"; // > 5 days
+    // Weightage multiplier: High=1.5, Medium=1.0, Low=0.7
+    const weightFactor = weightage === "High" ? 1.5 : (weightage === "Low" ? 0.7 : 1.0);
+    const remainingEffort = Math.max(0.5, (estimatedHours || 2) * (1 - (progressPercent || 0) / 100));
+
+    // 1. Past deadline or < 24h with low progress -> CRITICAL
+    if (diffHours < 0 && progressPercent < 100) {
+      return "Critical";
     }
+    if (daysRemaining <= 1 && progressPercent < 75) {
+      return "Critical";
+    }
+    if (daysRemaining <= 2 && weightFactor >= 1.2 && progressPercent < 50) {
+      return "Critical";
+    }
+
+    // 2. High Urgency
+    if (daysRemaining <= 2 && progressPercent < 100) {
+      return "High";
+    }
+    if (daysRemaining <= 4 && (weightFactor >= 1.2 || remainingEffort >= 4) && progressPercent < 60) {
+      return "High";
+    }
+
+    // 3. Medium Urgency
+    if (daysRemaining <= 5 && progressPercent < 80) {
+      return "Medium";
+    }
+    if (remainingEffort >= 3 && progressPercent < 50) {
+      return "Medium";
+    }
+
+    // 4. Low Urgency
+    return "Low";
   }
 
   // --- Task Operations (UC02, UC03, UC04) ---
@@ -218,14 +245,32 @@ class AcademicPlannerModel {
       return { success: false, requiresConfirmation: true, warnings: validation.warnings };
     }
 
+    const weightage = taskData.weightage || "Medium";
+    const estimatedHours = parseFloat(taskData.estimatedHours) || 2;
+    const progressPercent = parseInt(taskData.progressPercent) || 0;
+
     // Auto-suggest priority if not provided
-    const priority = taskData.priority || this.suggestPriority(taskData.dueDate, taskData.dueTime);
+    const priority = taskData.priority || this.suggestPriority(
+      taskData.dueDate,
+      taskData.dueTime,
+      weightage,
+      estimatedHours,
+      progressPercent
+    );
 
     // Initial status: if in past and not finished, mark Overdue
     const due = new Date(taskData.dueDate + "T" + (taskData.dueTime || "23:59:00"));
-    let status = taskData.status || "Not started";
-    if (due < this.baseDate && status !== "Completed") {
-      status = "Overdue";
+    let status = taskData.status;
+    if (!status) {
+      if (progressPercent >= 100) {
+        status = "Completed";
+      } else if (due < this.baseDate) {
+        status = "Overdue";
+      } else if (progressPercent > 0) {
+        status = "In progress";
+      } else {
+        status = "Not started";
+      }
     }
 
     const newTask = {
@@ -236,7 +281,11 @@ class AcademicPlannerModel {
       dueDate: taskData.dueDate,
       dueTime: taskData.dueTime || "23:59",
       priority: priority,
+      weightage: weightage,
+      estimatedHours: estimatedHours,
+      progressPercent: progressPercent,
       status: status,
+      subtasks: Array.isArray(taskData.subtasks) ? taskData.subtasks : [],
       description: taskData.description || "",
       isFacultyPosted: !!taskData.isFacultyPosted,
       batch: taskData.batch || (this.currentUser ? this.currentUser.batch : "SY-C2"),
@@ -259,22 +308,110 @@ class AcademicPlannerModel {
     const oldTask = this.tasks[idx];
     const updated = { ...oldTask, ...updates };
 
-    // DP4 check
-    if (updates.status === "Completed") {
+    // Automatic status sync with progress percentage
+    if (typeof updates.progressPercent === "number") {
+      updated.progressPercent = Math.max(0, Math.min(100, updates.progressPercent));
+      if (updated.progressPercent >= 100) {
+        updated.status = "Completed";
+        updated.completedAt = new Date().toISOString();
+        this.alerts = this.alerts.filter(a => a.taskId !== taskId);
+      } else {
+        const due = new Date(updated.dueDate + "T" + (updated.dueTime || "23:59:00"));
+        if (due < this.baseDate) {
+          updated.status = "Overdue";
+          if (updated.priority !== "Critical") updated.priority = "Critical";
+        } else if (updated.progressPercent > 0) {
+          updated.status = "In progress";
+        } else {
+          updated.status = "Not started";
+        }
+      }
+    } else if (updates.status === "Completed") {
+      updated.progressPercent = 100;
       updated.completedAt = new Date().toISOString();
-      // Dismiss active alerts for this task
       this.alerts = this.alerts.filter(a => a.taskId !== taskId);
     } else if (updates.status && updates.status !== "Completed") {
+      if (updated.progressPercent === 100) updated.progressPercent = 50;
       const due = new Date(updated.dueDate + "T" + (updated.dueTime || "23:59:00"));
       if (due < this.baseDate) {
         updated.status = "Overdue";
-        updated.priority = "High"; // FR13 raise priority
+        updated.priority = "Critical";
       }
     }
 
     this.tasks[idx] = updated;
     this.persist();
     return { success: true, task: updated };
+  }
+
+  updateTaskProgress(taskId, percent) {
+    return this.updateTask(taskId, { progressPercent: percent });
+  }
+
+  // --- Subtasks Management (Feature 3) ---
+  addSubtask(taskId, title, dueDate = null) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task) return { success: false, message: "Task not found" };
+
+    if (!task.subtasks) task.subtasks = [];
+    const newSubtask = {
+      id: "sub-" + Date.now().toString(36) + Math.random().toString(36).substr(2, 3),
+      title: title.trim(),
+      completed: false,
+      dueDate: dueDate || task.dueDate
+    };
+    task.subtasks.push(newSubtask);
+
+    // Recalculate progress from subtasks
+    this.syncProgressFromSubtasks(task);
+    this.persist();
+    return { success: true, subtask: newSubtask, task };
+  }
+
+  toggleSubtask(taskId, subtaskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task || !task.subtasks) return { success: false };
+
+    const sub = task.subtasks.find(s => s.id === subtaskId);
+    if (!sub) return { success: false };
+
+    sub.completed = !sub.completed;
+    this.syncProgressFromSubtasks(task);
+    this.persist();
+    return { success: true, task, subtask: sub };
+  }
+
+  deleteSubtask(taskId, subtaskId) {
+    const task = this.tasks.find(t => t.id === taskId);
+    if (!task || !task.subtasks) return { success: false };
+
+    task.subtasks = task.subtasks.filter(s => s.id !== subtaskId);
+    if (task.subtasks.length > 0) {
+      this.syncProgressFromSubtasks(task);
+    }
+    this.persist();
+    return { success: true, task };
+  }
+
+  syncProgressFromSubtasks(task) {
+    if (!task.subtasks || task.subtasks.length === 0) return;
+    const completed = task.subtasks.filter(s => s.completed).length;
+    const calculatedPercent = Math.round((completed / task.subtasks.length) * 100);
+    task.progressPercent = calculatedPercent;
+
+    if (calculatedPercent >= 100) {
+      task.status = "Completed";
+    } else {
+      const due = new Date(task.dueDate + "T" + (task.dueTime || "23:59:00"));
+      if (due < this.baseDate) {
+        task.status = "Overdue";
+        task.priority = "Critical";
+      } else if (calculatedPercent > 0) {
+        task.status = "In progress";
+      } else {
+        task.status = "Not started";
+      }
+    }
   }
 
   deleteTask(taskId) {
@@ -410,6 +547,98 @@ class AcademicPlannerModel {
       .filter(t => t.status !== "Completed")
       .sort((a, b) => new Date(a.dueDate + "T" + a.dueTime) - new Date(b.dueDate + "T" + b.dueTime))
       .slice(0, limit);
+  }
+
+  // --- DASHBOARD ENHANCEMENTS (Feature 6) ---
+
+  // 1. Today's Focus: Top 3 urgent tasks
+  getTodaysFocus(limit = 3) {
+    const priorityWeight = { "Critical": 4, "High": 3, "Medium": 2, "Low": 1 };
+    return this.tasks
+      .filter(t => t.status !== "Completed")
+      .sort((a, b) => {
+        const pDiff = (priorityWeight[b.priority] || 2) - (priorityWeight[a.priority] || 2);
+        if (pDiff !== 0) return pDiff;
+        return new Date(a.dueDate + "T" + a.dueTime) - new Date(b.dueDate + "T" + b.dueTime);
+      })
+      .slice(0, limit);
+  }
+
+  // 2. Due Today (Simulation Date: 2026-10-26)
+  getDueToday() {
+    return this.tasks.filter(t => t.dueDate === "2026-10-26" && t.status !== "Completed");
+  }
+
+  // 3. Due This Week (26 Oct 2026 - 1 Nov 2026)
+  getDueThisWeek() {
+    return this.tasks.filter(t => {
+      if (t.status === "Completed") return false;
+      return t.dueDate >= "2026-10-26" && t.dueDate <= "2026-11-01";
+    }).sort((a, b) => new Date(a.dueDate + "T" + a.dueTime) - new Date(b.dueDate + "T" + b.dueTime));
+  }
+
+  // 4. Overdue Tasks Section
+  getOverdueTasks() {
+    return this.tasks.filter(t => t.status === "Overdue" || (t.dueDate < "2026-10-26" && t.status !== "Completed"));
+  }
+
+  // 5. Subject-Wise Progress Bars
+  getSubjectProgress() {
+    const map = {};
+    this.subjects.forEach(s => {
+      map[s.code] = {
+        code: s.code,
+        name: s.name,
+        color: s.color,
+        total: 0,
+        completed: 0,
+        totalProgressSum: 0,
+        avgProgress: 0
+      };
+    });
+
+    this.tasks.forEach(t => {
+      if (!map[t.subject]) {
+        map[t.subject] = { code: t.subject, name: t.subject, color: "#3b82f6", total: 0, completed: 0, totalProgressSum: 0, avgProgress: 0 };
+      }
+      map[t.subject].total++;
+      if (t.status === "Completed") {
+        map[t.subject].completed++;
+        map[t.subject].totalProgressSum += 100;
+      } else {
+        map[t.subject].totalProgressSum += (t.progressPercent || 0);
+      }
+    });
+
+    return Object.values(map).map(s => {
+      s.avgProgress = s.total === 0 ? 0 : Math.round(s.totalProgressSum / s.total);
+      return s;
+    });
+  }
+
+  // 6. Weekly Workload Indicator & Overload Detection
+  getWeeklyWorkload(overloadThreshold = 4) {
+    const weekDays = [
+      { day: "Mon", date: "2026-10-26", label: "26 Oct" },
+      { day: "Tue", date: "2026-10-27", label: "27 Oct" },
+      { day: "Wed", date: "2026-10-28", label: "28 Oct" },
+      { day: "Thu", date: "2026-10-29", label: "29 Oct" },
+      { day: "Fri", date: "2026-10-30", label: "30 Oct" },
+      { day: "Sat", date: "2026-10-31", label: "31 Oct" },
+      { day: "Sun", date: "2026-11-01", label: "1 Nov" }
+    ];
+
+    return weekDays.map(d => {
+      const dayTasks = this.tasks.filter(t => t.dueDate === d.date);
+      const totalHours = dayTasks.reduce((acc, t) => acc + (parseFloat(t.estimatedHours) || 2), 0);
+      return {
+        ...d,
+        hours: totalHours,
+        taskCount: dayTasks.length,
+        tasks: dayTasks,
+        isOverloaded: totalHours > overloadThreshold
+      };
+    });
   }
 
   // --- FACULTY BROADCAST POSTING (FR10 / UC11 / US09) ---

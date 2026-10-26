@@ -35,13 +35,17 @@
   --accent-light: #e0e7ff;
 
   /* Priority & Status Tokens */
-  --priority-high: #ef4444;
-  --priority-high-bg: #fee2e2;
-  --priority-high-text: #991b1b;
+  --priority-critical: #dc2626;
+  --priority-critical-bg: #fee2e2;
+  --priority-critical-text: #991b1b;
 
-  --priority-med: #f59e0b;
-  --priority-med-bg: #fef3c7;
-  --priority-med-text: #92400e;
+  --priority-high: #ea580c;
+  --priority-high-bg: #ffedd5;
+  --priority-high-text: #9a3412;
+
+  --priority-med: #eab308;
+  --priority-med-bg: #fef9c3;
+  --priority-med-text: #854d0e;
 
   --priority-low: #10b981;
   --priority-low-bg: #d1fae5;
@@ -86,11 +90,14 @@
   --primary-hover: #60a5fa;
   --primary-light: rgba(59, 130, 246, 0.15);
 
-  --priority-high-bg: rgba(239, 68, 68, 0.2);
-  --priority-high-text: #fca5a5;
+  --priority-critical-bg: rgba(220, 38, 38, 0.25);
+  --priority-critical-text: #fca5a5;
 
-  --priority-med-bg: rgba(245, 158, 11, 0.2);
-  --priority-med-text: #fcd34d;
+  --priority-high-bg: rgba(234, 88, 12, 0.25);
+  --priority-high-text: #fdba74;
+
+  --priority-med-bg: rgba(234, 179, 8, 0.25);
+  --priority-med-text: #fde047;
 
   --priority-low-bg: rgba(16, 185, 129, 0.2);
   --priority-low-text: #6ee7b7;
@@ -696,22 +703,28 @@ body {
   letter-spacing: 0.03em;
 }
 
+.priority-critical {
+  background: var(--priority-critical-bg);
+  color: var(--priority-critical-text);
+  border: 1px solid rgba(220, 38, 38, 0.4);
+}
+
 .priority-high {
   background: var(--priority-high-bg);
   color: var(--priority-high-text);
-  border: 1px solid rgba(239, 68, 68, 0.3);
+  border: 1px solid rgba(234, 88, 12, 0.4);
 }
 
 .priority-medium {
   background: var(--priority-med-bg);
   color: var(--priority-med-text);
-  border: 1px solid rgba(245, 158, 11, 0.3);
+  border: 1px solid rgba(234, 179, 8, 0.4);
 }
 
 .priority-low {
   background: var(--priority-low-bg);
   color: var(--priority-low-text);
-  border: 1px solid rgba(16, 185, 129, 0.3);
+  border: 1px solid rgba(16, 185, 129, 0.4);
 }
 
 .badge-status {
@@ -896,6 +909,11 @@ body {
   transform: scale(1.15);
 }
 
+.cal-marker-crit {
+  background: var(--priority-critical);
+  box-shadow: 0 0 0 2px rgba(220, 38, 38, 0.4);
+}
+
 .cal-marker-high {
   background: var(--priority-high);
 }
@@ -911,6 +929,23 @@ body {
 .cal-marker-overdue {
   background: #b91c1c;
   animation: pulseLight 2s infinite;
+}
+
+/* Calendar Enhancements (Feature 7) */
+.calendar-cell.is-multi-deadline {
+  border-color: #6366f1;
+  background: rgba(99, 102, 241, 0.04);
+}
+
+.cal-task-count-badge {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent-light);
+  color: var(--accent);
+  display: inline-flex;
+  align-items: center;
 }
 
 /* Calendar Legend */
@@ -1355,10 +1390,296 @@ body {
   color: #93c5fd;
 }
 
+/* Critical Radio Card in Add Task Modal */
+.radio-card.selected-crit {
+  border-color: var(--priority-critical);
+  background: var(--priority-critical-bg);
+  color: var(--priority-critical-text);
+}
+
+/* Subtasks Component Styles (Feature 3) */
+.subtasks-section {
+  margin-top: 16px;
+  padding: 16px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.subtasks-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  transition: var(--transition);
+}
+
+.subtask-item.is-completed span.subtask-title-text {
+  text-decoration: line-through;
+  opacity: 0.6;
+}
+
+.subtask-input-bar {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+/* Progress Slider & Bar Styles (Feature 2) */
+.progress-input-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.progress-slider-control {
+  flex: 1;
+  height: 6px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.progress-slider-value {
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--primary);
+  min-width: 44px;
+}
+
+.mini-progress-track {
+  width: 90px;
+  height: 6px;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+  margin-top: 4px;
+}
+
+.mini-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #10b981);
+  border-radius: var(--radius-full);
+}
+
+/* Today's Focus Card (Feature 6) */
+.focus-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.focus-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  position: relative;
+  box-shadow: var(--shadow-sm);
+  transition: var(--transition);
+}
+
+.focus-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.focus-card.urgent-border {
+  border-left: 4px solid var(--priority-critical);
+}
+
+/* Weekly Workload Chart & Overload Warning (Feature 6) */
+.workload-chart {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.workload-day-col {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 12px 8px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+
+.workload-day-col.is-overloaded {
+  border-color: var(--priority-critical);
+  background: var(--priority-critical-bg);
+}
+
+.workload-meter-track {
+  width: 14px;
+  height: 65px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  margin: 6px 0;
+}
+
+[data-theme="dark"] .workload-meter-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.workload-meter-bar {
+  width: 100%;
+  background: var(--primary);
+  border-radius: var(--radius-full);
+  transition: height 0.4s ease;
+}
+
+.workload-meter-bar.overloaded {
+  background: var(--priority-critical);
+}
+
+/* Sound & Notification Settings (Feature 5) */
+.settings-section-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.setting-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.setting-row:last-child {
+  border-bottom: none;
+}
+
+.setting-info h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.setting-info p {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+}
+
+/* Switch */
+.switch-toggle {
+  position: relative;
+  display: inline-block;
+  width: 48px;
+  height: 26px;
+}
+
+.switch-toggle input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  inset: 0;
+  background-color: var(--border-subtle);
+  transition: 0.25s ease;
+  border-radius: 34px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: white;
+  transition: 0.25s ease;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+}
+
+.switch-toggle input:checked + .toggle-slider {
+  background-color: var(--primary);
+}
+
+.switch-toggle input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* Repeating Alarm Floating Banner (Feature 4) */
+#active-alarm-banner {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10000;
+  animation: alarmPulse 0.6s infinite alternate ease-in-out;
+}
+
+.alarm-floating-box {
+  background: #dc2626;
+  color: white;
+  padding: 14px 28px;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  box-shadow: 0 12px 30px rgba(220, 38, 38, 0.5);
+}
+
+.alarm-pulsing-icon {
+  font-size: 1.6rem;
+  animation: shake 0.4s infinite;
+}
+
+@keyframes alarmPulse {
+  from { transform: translate(-50%, 0) scale(1); }
+  to { transform: translate(-50%, -4px) scale(1.02); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
 /* Responsive adjustments */
 @media (max-width: 1024px) {
-  .dashboard-grid, .calendar-container {
+  .dashboard-grid, .calendar-container, .focus-grid {
     grid-template-columns: 1fr;
+  }
+  .workload-chart {
+    grid-template-columns: repeat(4, 1fr);
   }
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
